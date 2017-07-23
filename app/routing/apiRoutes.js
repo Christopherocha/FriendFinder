@@ -1,23 +1,34 @@
 var express = require('express');
-var router = express.Router()
+var router = express.Router();
+var friends = require('../data/friends')
 
-var friends = [{name: "Chris",
-    email: "blah@gmail.com"
-}];
+var evalFriends = function(friend){
+    var newScore = friend.scores.reduce( (x,y) => x + y);
+    var matchScore = 0;
+    var match;
+
+    for (var i = 0; i < friends.length; i++) {
+        friendScore = friends[i].scores.reduce( (x,y) => x + y);
+
+        if (Math.abs(friendScore - newScore) < Math.abs(matchScore - newScore)) {
+            matchScore = friendScore;
+            match = friends[i]
+        }
+    }
+    return match;
+}
 
 router.get('/', function(req, res){
-    //req.
     res.json(friends);
 })
 
 router.post('/', function(req, res){
-    console.log(req);
-    res.send()
+    var newFriend = req.body;
+    newFriend.scores = newFriend.scores.map(n=> parseFloat(n));
+
+    var match = evalFriends(newFriend);
+    friends.push(newFriend);
+    res.json(match)
 })
 
 module.exports = router;
-
-
-
-// A GET route with the url /api/friends. This will be used to display a JSON of all possible friends.
-// A POST routes /api/friends. This will be used to handle incoming survey results. This route will also be used to handle the compatibility logic.
